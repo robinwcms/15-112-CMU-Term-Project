@@ -1,50 +1,66 @@
-Game Description:
-Zombie Wars is a top down game that features a procedurally generated map. Sprites such as trees, zombies, loot crates, and possible loot are all procedurally generated and differ every time. The objective of the game is to get as many kills as possible without dying.
+# Zombie Wars
 
-Instructions:
+A top-down survival shooter built in **Python** as my term project for **Carnegie Mellon's 15-112 (Fundamentals of Programming and Computer Science)**.
 
-W: Forward
-S: Backward
-A: Left
-D: Right
+Every map is procedurally generated with the **diamond-square algorithm**, so no two playthroughs are the same. The goal is simple: rack up as many kills as you can before the zombies get you.
 
-Press 1: Switch weapon to rifle
-Press 2: Switch weapon to shotgun
-Double press 1 or 2: Unequip any weapon and switch to melee
+## About this project
 
-Aim/shoot:
-Move mouse cursor to aim
-Left click to shoot
+I built Zombie Wars entirely in the **CMU Graphics library** (the `cmu-graphics` animation framework taught in 15-112). It's a deliberately minimal, education-focused library — it has no game engine, no physics, no built-in collision system, no asset pipeline, and no sprite tooling like you'd get in Unity or GameMaker. Everything here — the game loop, collision detection, weapon systems, enemy AI, procedural map generation, and inventory — is implemented from scratch on top of a basic drawing API. I also hand-drew all the sprites and environment art in Piskel.
 
-Press E to open crates when you are in range
+Working inside those constraints was the point: it forced me to actually understand how the underlying systems work rather than calling an engine's built-in functions.
 
-Press E again to pick up the item in the crate (if there is any) 
+## Features
 
-Possible loot:
-Blue circle (+ 10 ammo for rifle)
-Red Circle (+ 5 ammo for shotgun)
-Green Circle (+ 10 health)
+- **Procedurally generated maps** — I generate a 129×129 heightmap with the diamond-square algorithm, then use that noise map as a spawn distribution: the values determine where trees, zombies, crates, and loot appear. Because diamond-square produces smooth, spatially-correlated terrain (rather than uniform randomness), the world clusters naturally and looks different every run.
+- **Multiple weapons** — rifle, shotgun, and melee, each with its own ammo and behavior.
+- **Loot system** — open crates to find ammo and health pickups.
+- **Enemy AI and combat** — zombies pursue the player; combat, collisions, and scoring are all custom-built.
+- **Original pixel art** — all sprites and backgrounds hand-drawn in Piskel.
 
+## Controls
 
+| **Input**               | **Action**                               |
+|-------------------------|------------------------------------------|
+| `W` `A` `S` `D`         | Move (forward / left / back / right)     |
+| Mouse                   | Aim                                      |
+| Left Click              | Shoot                                    |
+| `1`                     | Switch to rifle                          |
+| `2`                     | Switch to shotgun                        |
+| Double-tap `1` or `2`   | Unequip and switch to melee              |
+| `E` (near a crate)      | Open crate                               |
+| `E` (again)             | Pick up the item inside (if available)   |
 
+### Loot types
 
+- 🔵 **Blue circle** — +10 rifle ammo
+- 🔴 **Red circle** — +5 shotgun ammo
+- 🟢 **Green circle** — +10 health
 
+## Setup
 
+```bash
+pip install cmu-graphics pillow
+```
 
+Keep `termproject.py` in the same folder as the `background/`, `sprites/`, and `screens/` directories, then run:
 
+```bash
+python termproject.py
+```
+
+## Changelog
+
+Recent fixes to make the project run cleanly on any machine (gameplay unchanged):
+
+- Asset paths are now relative to the script instead of hardcoded to a local user directory, so the game runs anywhere.
+- Fixed a bug where pressing `E` with no crate nearby silently checked the last crate in the world (added an index guard).
+- Switching weapons now correctly clears active bullets/pellets (previously assigned to a local variable and had no effect).
+- Corrected two `==` / `=` typos in the rifle and shotgun reload edge cases.
+- Fixed a collision-check bug where zombie collision used a leftover crate coordinate instead of the zombie's own position.
+- Fixed a zombie attack-timer reset that was writing to an unused attribute.
+- Removed a dead condition in the tree generator that could never evaluate true (spawn rate unchanged).
 
 ---
 
-Setup (fixed version):
-1. pip install cmu-graphics pillow
-2. Keep termproject.py in the same folder as background/, sprites/, and screens/
-3. python termproject.py
-
-Changelog (bugfixes, gameplay unchanged):
-- Asset paths are now relative to the script instead of hardcoded to C:/Users/robin, so the game runs on any machine
-- Pressing E with no crate nearby no longer secretly checked the last crate in the world (index -1 guard)
-- Switching weapons now actually clears bullets/pellets (was assigning to a local variable)
-- Two "==" typos in the rifle/shotgun reload edge cases changed to "=" assignments
-- isLegal's zombie collision check used crate.crateY left over from the crate loop; now uses zombie.zombieY
-- Zombie attack timer reset was writing to an unused app.zombieTimer attribute; now resets zombie.timer
-- Removed an impossible condition in the tree generator (val[-2] == '-1' can never be true for a single character)
+*Built solo for CMU 15-112, Summer 2024.*
